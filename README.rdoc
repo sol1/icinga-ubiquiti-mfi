@@ -8,8 +8,9 @@ Current status: the temperature sensor on the Ubiquiti mFi-THS Temperature
 Sensor works. We're looking to add support for motion detection on the Ubiquiti
 mFi-MSW Wall Mount Motion Sensor shortly.
 
-  Usage:
-	check_ubiquiti_mfi [options]
+=== Usage
+
+  check_ubiquiti_mfi [options]
   where [options] are:
       --json, -j <s>:   Path to file containing JSON output of an mFi's `mca-dump`
     --sensor, -s <s>:   Sensor (supported: temp)
@@ -18,7 +19,7 @@ mFi-MSW Wall Mount Motion Sensor shortly.
        --version, -v:   Print version and exit
           --help, -h:   Show this message
 
-Example:
+=== Examples
 
   check_ubiquiti_mfi --json mca-dump-output.json --sensor temp -w 27 -c 32
 
