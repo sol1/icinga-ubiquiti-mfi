@@ -1,0 +1,22 @@
+== Ubiquiti mFi sensor checks for Icinga & Nagios
+
+check_ubiquiti_mfi is an Icinga check script for Ubiquiti mFi devices. It is
+designed to inspect the output of the device's `mca-dump` command and allow you
+to check each sensor with definable Icinga thresholds.
+
+Current status: the temperature sensor on the Ubiquiti mFi-THS Temperature
+Sensor works. We're looking to add support for motion detection on the Ubiquiti
+mFi-MSW Wall Mount Motion Sensor shortly.
+
+Usage:
+	check_ubiquiti_mfi [options]
+where [options] are:
+      --json, -j <s>:   Path to file containing JSON output of an mFi's `mca-dump`
+    --sensor, -s <s>:   Sensor (supported: temp)
+   --warning, -w <i>:   Warning threshold (default: 27)
+  --critical, -c <i>:   Critical threshold (default: 32)
+       --version, -v:   Print version and exit
+          --help, -h:   Show this message
+
+Example:
+	check_ubiquiti_mfi --json mca-dump-output.json --sensor temp -w 27 -c 32

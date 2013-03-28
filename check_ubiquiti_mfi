@@ -1,0 +1,74 @@
+#!/usr/bin/ruby
+require 'rubygems'
+require 'json'
+require 'trollop' # TODO single file, could we bundle for convenience? http://trollop.rubyforge.org/
+
+supported_sensors = %w[temp] # list of Ubiquiti_mFi_Icinga_Check methods
+
+opts = Trollop::options do
+	version "check_ubiquiti_mfi 0.1 (c) 2013 Sol1 Pty Ltd, http://sol1.com.au"
+	banner <<-EOS
+check_ubiquiti_mfi is an Icinga check script for Ubiquiti mFi devices.
+It is designed to inspect the output of the device's `mca-dump` command
+and allow you to check each sensor with definable Icinga thresholds.
+
+Usage:
+	check_ubiquiti_mfi [options]
+where [options] are:
+EOS
+	opt :json,     "Path to file containing JSON output of an mFi's `mca-dump`", :type => :string
+	opt :sensor,   "Sensor (supported: #{supported_sensors.join('|')})", :type => :string
+	opt :warning,  "Warning threshold",  :default => 27 # TODO this won't make sense when more than temp is supported
+	opt :critical, "Critical threshold", :default => 32 # TODO this won't make sense when more than temp is supported
+end
+
+Trollop::die :json, "must be specified" unless opts[:json]
+Trollop::die :sensor, "must be specified" unless opts[:sensor]
+
+Trollop::die :json, "file must exist" unless File.exist?(opts[:json]) if opts[:json]
+Trollop::die :sensor, "contains an unsupported sensor type" unless supported_sensors.include?(opts[:sensor])
+
+class Ubiquiti_mFi_Icinga_Check
+	
+	def initialize(json_file)
+		@status_success = 0
+		@status_warning = 1
+		@status_critical = 2
+		@status_unknown = 3
+
+		begin
+			json = File.read(json_file)
+			@data = JSON.parse(json)
+		rescue Exception => e
+			puts "UNKNOWN - couldn't parse '#{json_file}' as valid JSON"
+			exit @status_unknown
+		end
+	end
+	
+	def temp(threshold_warning, threshold_critical)			
+		unless @data['alarm'].is_a?(Array)
+			puts "UNKNOWN - alarm data not found"
+			exit @status_unknown
+		else
+			temp = @data['alarm'].collect{|alarm| alarm['val'] if alarm['tag'] == "temperature"}.compact.first
+			if temp
+				if temp.to_f > threshold_critical
+					puts "CRITICAL - Temperature = #{temp} degrees"
+					exit @status_critical
+				elsif temp.to_f > threshold_warning
+					puts "WARNING - Temperature = #{temp} degrees"
+					exit @status_warning
+				else
+					puts "OK - Temperature = #{temp} degrees"
+					exit @status_success
+				end			
+			else
+				puts "UNKNOWN - got alarm data, but sensor not found"
+				exit @status_unknown
+			end
+		end
+	end
+end
+
+check = Ubiquiti_mFi_Icinga_Check.new(opts[:json])
+check.send(opts[:sensor], opts[:warning], opts[:critical])
