@@ -8,9 +8,9 @@ Current status: the temperature sensor on the Ubiquiti mFi-THS Temperature
 Sensor works. We're looking to add support for motion detection on the Ubiquiti
 mFi-MSW Wall Mount Motion Sensor shortly.
 
-Usage:
+  Usage:
 	check_ubiquiti_mfi [options]
-where [options] are:
+  where [options] are:
       --json, -j <s>:   Path to file containing JSON output of an mFi's `mca-dump`
     --sensor, -s <s>:   Sensor (supported: temp)
    --warning, -w <i>:   Warning threshold (default: 27)
@@ -19,4 +19,17 @@ where [options] are:
           --help, -h:   Show this message
 
 Example:
-	check_ubiquiti_mfi --json mca-dump-output.json --sensor temp -w 27 -c 32
+
+  check_ubiquiti_mfi --json mca-dump-output.json --sensor temp -w 27 -c 32
+
+=== Installation
+
+* gem install trollop
+* Copy check_ubiquiti_mfi script to your nagios-checks folder
+* Configure Icinga to use check_ubiquiti_mfi as a check command
+
+=== TODO
+
+* Motion sensors
+* Bundle trollop
+* Add example of Icinga configuration
